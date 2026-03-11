@@ -30,6 +30,9 @@
       "backgroundColor": "#0a0e17",
       "themeColor": "#0a0e17"
     },
+    "experiments": {
+      "baseUrl": "/huc12-quiz"
+    },
     "plugins": [
       ["expo-router", { "root": "./src/app" }],
       "expo-sqlite"
