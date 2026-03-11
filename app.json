@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "CT Watershed Quiz",
+    "slug": "ct-watershed-quiz",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "ct-watershed-quiz",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0e17"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0e17",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "name": "CT Watershed Quiz",
+      "shortName": "WS Quiz",
+      "description": "Learn Connecticut's HUC-12 subwatersheds",
+      "backgroundColor": "#0a0e17",
+      "themeColor": "#0a0e17"
+    },
+    "plugins": [
+      ["expo-router", { "root": "./src/app" }],
+      "expo-sqlite"
+    ]
+  }
+}
