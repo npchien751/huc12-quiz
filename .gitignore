@@ -40,5 +40,5 @@ yarn-error.*
 /ios
 /android
 
-# raw geodata (large)
-scripts/raw_ct_huc12.geojson
+# raw geodata (large — re-download with scripts/download-ne-huc12.js)
+scripts/raw_*.geojson

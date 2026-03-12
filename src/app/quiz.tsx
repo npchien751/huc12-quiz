@@ -80,7 +80,7 @@ export default function QuizScreen() {
 
   return (
     <View style={styles.container}>
-      <WatershedMap filterBasin={quiz.basin} />
+      <WatershedMap />
 
       {/* Explore mode: show all toggle + back button */}
       {quiz.mode === 'explore' && (
