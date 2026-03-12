@@ -123,7 +123,7 @@ export default function WatershedMap({ filterBasin = 'all' }: Props) {
         <iframe
           ref={(el: any) => { iframeRef.current = el; }}
           srcDoc={htmlContent}
-          style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#0f172a' } as any}
+          style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#f8f8f8' } as any}
         />
       </View>
     );
@@ -185,7 +185,7 @@ function buildLeafletHTML(
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body, #map { width: 100%; height: 100%; background: #0f172a; }
+  html, body, #map { width: 100%; height: 100%; background: #f8f8f8; }
   .watershed-label {
     background: rgba(0,0,0,0.75);
     color: #fff;
@@ -214,7 +214,7 @@ function buildLeafletHTML(
     maxBoundsViscosity: 1.0,
   }).setView([41.55, -72.75], 9);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
     maxZoom: 16,
     minZoom: 7,
   }).addTo(map);
@@ -290,5 +290,5 @@ function buildLeafletHTML(
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  webview: { flex: 1, backgroundColor: '#0f172a' },
+  webview: { flex: 1, backgroundColor: '#f8f8f8' },
 });
