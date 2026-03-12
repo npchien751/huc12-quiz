@@ -13,18 +13,13 @@ import {
 import {
   Watershed,
   getAllWatersheds,
-  getWatershedsByState,
-  getWatershedsByHuc6,
   getWatershedsByBasin,
   matchesName,
 } from './geo-utils';
 
-export type FilterType = 'all' | 'state' | 'huc06' | 'huc08';
-
 interface AppStore {
   // Quiz configuration
-  filterType: FilterType;
-  filterValue: string; // state code, huc6 code, huc8 code, or '' for 'all'
+  selectedBasin: string | 'all';
   selectedMode: QuizMode;
 
   // Quiz state
@@ -35,8 +30,7 @@ interface AppStore {
   showAllNames: boolean;
 
   // Actions
-  setFilterType: (type: FilterType) => void;
-  setFilterValue: (value: string) => void;
+  setBasin: (basin: string | 'all') => void;
   setMode: (mode: QuizMode) => void;
   initQuiz: () => void;
   start: () => void;
@@ -47,40 +41,28 @@ interface AppStore {
   toggleReveal: (huc12: string) => void;
   toggleShowAll: () => void;
   reset: () => void;
-
-  // Derived helpers
-  getSelectedWatersheds: () => Watershed[];
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
-  filterType: 'all',
-  filterValue: '',
+  selectedBasin: 'all',
   selectedMode: 'explore',
   quiz: null,
   revealedIds: new Set(),
   showAllNames: false,
 
-  setFilterType: (type) => set({ filterType: type, filterValue: '' }),
-  setFilterValue: (value) => set({ filterValue: value }),
+  setBasin: (basin) => set({ selectedBasin: basin }),
   setMode: (mode) => set({ selectedMode: mode }),
 
-  getSelectedWatersheds: () => {
-    const { filterType, filterValue } = get();
-    switch (filterType) {
-      case 'state':  return filterValue ? getWatershedsByState(filterValue) : getAllWatersheds();
-      case 'huc06':  return filterValue ? getWatershedsByHuc6(filterValue) : getAllWatersheds();
-      case 'huc08':  return filterValue ? getWatershedsByBasin(filterValue) : getAllWatersheds();
-      default:       return getAllWatersheds();
-    }
-  },
-
   initQuiz: () => {
-    const { filterType, filterValue, selectedMode, getSelectedWatersheds } = get();
-    const watersheds = getSelectedWatersheds();
+    const { selectedBasin, selectedMode } = get();
+    const watersheds =
+      selectedBasin === 'all'
+        ? getAllWatersheds()
+        : getWatershedsByBasin(selectedBasin);
 
     const quiz = createQuizState({
       mode: selectedMode,
-      basin: filterType === 'huc08' ? filterValue : filterType === 'state' ? filterValue : 'all',
+      basin: selectedBasin,
       watersheds,
     });
 

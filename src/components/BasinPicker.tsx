@@ -1,34 +1,17 @@
-/**
- * Generic region picker — used for both state and HUC-06 selection.
- * Accepts a list of items (states or HUC-6 basins) and renders a scrollable
- * list with an "All" option at the top.
- */
 import React from 'react';
 import { StyleSheet, View, Text, Pressable, ScrollView } from 'react-native';
+import { BASINS } from '../constants/basins';
 import { COLORS, SPACING, RADIUS } from '../constants/theme';
-
-export interface RegionItem {
-  code: string;
-  name: string;
-  color: string;
-  count: number;
-}
+import { getAllWatersheds, getWatershedsByBasin } from '../lib/geo-utils';
 
 interface Props {
-  items: RegionItem[];
   selected: string | 'all';
-  allLabel: string;       // e.g. "All New England" or "All States"
-  allCount: number;
-  onSelect: (code: string | 'all') => void;
+  onSelect: (basin: string | 'all') => void;
 }
 
-export default function BasinPicker({
-  items,
-  selected,
-  allLabel,
-  allCount,
-  onSelect,
-}: Props) {
+export default function BasinPicker({ selected, onSelect }: Props) {
+  const totalCount = getAllWatersheds().length;
+
   return (
     <ScrollView
       style={styles.container}
@@ -42,28 +25,30 @@ export default function BasinPicker({
         <View style={[styles.colorDot, { backgroundColor: COLORS.primary }]} />
         <View style={styles.itemContent}>
           <Text style={[styles.name, selected === 'all' && styles.nameSelected]}>
-            {allLabel}
+            All Connecticut
           </Text>
-          <Text style={styles.count}>{allCount} watersheds</Text>
+          <Text style={styles.count}>{totalCount} watersheds</Text>
         </View>
         {selected === 'all' && <View style={styles.checkmark} />}
       </Pressable>
 
-      {items.map((item) => {
-        if (item.count === 0) return null;
-        const isSelected = selected === item.code;
+      {BASINS.map((basin) => {
+        const count = getWatershedsByBasin(basin.code).length;
+        if (count === 0) return null;
+        const isSelected = selected === basin.code;
+
         return (
           <Pressable
-            key={item.code}
+            key={basin.code}
             style={[styles.item, isSelected && styles.itemSelected]}
-            onPress={() => onSelect(item.code)}
+            onPress={() => onSelect(basin.code)}
           >
-            <View style={[styles.colorDot, { backgroundColor: item.color }]} />
+            <View style={[styles.colorDot, { backgroundColor: basin.color }]} />
             <View style={styles.itemContent}>
               <Text style={[styles.name, isSelected && styles.nameSelected]}>
-                {item.name}
+                {basin.name}
               </Text>
-              <Text style={styles.count}>{item.count} watersheds</Text>
+              <Text style={styles.count}>{count} watersheds</Text>
             </View>
             {isSelected && <View style={styles.checkmark} />}
           </Pressable>

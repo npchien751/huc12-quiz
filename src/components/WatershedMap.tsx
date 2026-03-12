@@ -1,15 +1,14 @@
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
-import {
-  getAllFeatures,
-  getFeaturesByState,
-  getFeaturesByHuc6,
-  getFeaturesByBasin,
-} from '../lib/geo-utils';
+import { getAllFeatures } from '../lib/geo-utils';
 import { getBasinColor } from '../constants/basins';
 import { useAppStore } from '../lib/store';
 
-export default function WatershedMap() {
+interface Props {
+  filterBasin?: string | 'all';
+}
+
+export default function WatershedMap({ filterBasin = 'all' }: Props) {
   const containerRef = useRef<any>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const webViewRef = useRef<any>(null);
@@ -17,15 +16,12 @@ export default function WatershedMap() {
   const revealedIds = useAppStore((s) => s.revealedIds);
   const showAllNames = useAppStore((s) => s.showAllNames);
   const tapPolygon = useAppStore((s) => s.tapPolygon);
-  const filterType = useAppStore((s) => s.filterType);
-  const filterValue = useAppStore((s) => s.filterValue);
 
   const features = useMemo(() => {
-    if (filterType === 'state' && filterValue) return getFeaturesByState(filterValue);
-    if (filterType === 'huc06' && filterValue) return getFeaturesByHuc6(filterValue);
-    if (filterType === 'huc08' && filterValue) return getFeaturesByBasin(filterValue);
-    return getAllFeatures();
-  }, [filterType, filterValue]);
+    const all = getAllFeatures();
+    if (filterBasin === 'all') return all;
+    return all.filter((f) => f.properties.huc8_code === filterBasin);
+  }, [filterBasin]);
 
   // Build style state
   const styleState = useMemo(() => {
@@ -166,10 +162,12 @@ function buildLeafletHTML(
   initialStyles: Record<string, { fill: string; stroke: string; strokeWidth: number; showLabel: boolean }>,
   isWeb: boolean
 ): string {
+  // On web, use window.parent.postMessage; on native, use window.ReactNativeWebView.postMessage
   const postMessageCode = isWeb
     ? `window.parent.postMessage(JSON.stringify({type:'polygon_tap',huc12:huc12}),'*')`
     : `window.ReactNativeWebView.postMessage(JSON.stringify({type:'polygon_tap',huc12:huc12}))`;
 
+  // On web, listen for postMessage for style updates
   const listenCode = isWeb
     ? `window.addEventListener('message',function(e){
         try{
@@ -210,16 +208,15 @@ function buildLeafletHTML(
   var geojsonData = ${JSON.stringify(geojson)};
   var currentStyles = ${JSON.stringify(initialStyles)};
 
-  // Default to New England center; fitBounds will override once data loads
   var map = L.map('map', {
     zoomControl: false,
     attributionControl: false,
     maxBoundsViscosity: 1.0,
-  }).setView([44.0, -71.5], 7);
+  }).setView([41.55, -72.75], 9);
 
   L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
     maxZoom: 16,
-    minZoom: 5,
+    minZoom: 7,
   }).addTo(map);
 
   var layers = {};
@@ -263,10 +260,7 @@ function buildLeafletHTML(
     }
   }).addTo(map);
 
-  // Auto-fit to the data bounds
-  if (geojsonLayer.getLayers().length > 0) {
-    map.fitBounds(geojsonLayer.getBounds().pad(0.05));
-  }
+  map.fitBounds(geojsonLayer.getBounds().pad(0.05));
 
   window.updateStyles = function(newStyles) {
     currentStyles = newStyles;
@@ -289,7 +283,7 @@ function buildLeafletHTML(
   };
 
   ${listenCode}
-<\/script>
+</script>
 </body>
 </html>`;
 }
