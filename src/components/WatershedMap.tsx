@@ -214,7 +214,7 @@ function buildLeafletHTML(
     maxBoundsViscosity: 1.0,
   }).setView([41.55, -72.75], 9);
 
-  L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 16,
     minZoom: 7,
   }).addTo(map);
